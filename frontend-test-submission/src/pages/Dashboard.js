@@ -1,23 +1,36 @@
-import React, { useState } from 'react';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
 
-function Login() {
-  const [form, setForm] = useState({ email: '', password: '' });
+function Dashboard() {
+  const [jobs, setJobs] = useState([]);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const res = await axios.post('http://localhost:5000/api/auth/login', form);
-    localStorage.setItem('token', res.data.token);
-    alert('Login successful');
+  useEffect(() => {
+    axios.get('http://localhost:5000/api/jobs')
+      .then(res => setJobs(res.data));
+  }, []);
+
+  const apply = async (id) => {
+    const token = localStorage.getItem('token');
+    await axios.post(`http://localhost:5000/api/jobs/apply/${id}`, {}, {
+      headers: { Authorization: token }
+    });
+    alert('Applied to job');
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <input placeholder="Email" onChange={e => setForm({ ...form, email: e.target.value })} />
-      <input type="password" placeholder="Password" onChange={e => setForm({ ...form, password: e.target.value })} />
-      <button type="submit">Login</button>
-    </form>
+    <div>
+      <h1>Job Listings</h1>
+      <ul>
+        {jobs.map(job => (
+          <li key={job._id}>
+            <b>{job.title}</b> @ {job.company}
+            <p>{job.description}</p>
+            <button onClick={() => apply(job._id)}>Apply</button>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
 
-export default Login;
+export default Dashboard;

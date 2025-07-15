@@ -1,20 +1,28 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import axios from 'axios';
 
 function Register() {
-  const [form, setForm] = useState({ username: '', email: '', password: '' });
+  const [form, setForm] = useState({ name: '', email: '', password: '', role: 'student' });
 
-  const handleSubmit = async (e) => {
+  const handleChange = e => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleRegister = async (e) => {
     e.preventDefault();
-    await axios.post('http://localhost:5000/api/auth/register', form);
-    alert('Registered successfully');
+    await axios.post('http://localhost:5000/api/users/register', form);
+    alert('Registration successful');
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <input placeholder="Username" onChange={e => setForm({ ...form, username: e.target.value })} />
-      <input placeholder="Email" onChange={e => setForm({ ...form, email: e.target.value })} />
-      <input type="password" placeholder="Password" onChange={e => setForm({ ...form, password: e.target.value })} />
+    <form onSubmit={handleRegister}>
+      <input placeholder="Name" name="name" onChange={handleChange} />
+      <input placeholder="Email" name="email" onChange={handleChange} />
+      <input type="password" placeholder="Password" name="password" onChange={handleChange} />
+      <select name="role" onChange={handleChange}>
+        <option value="student">Student</option>
+        <option value="company">Company</option>
+      </select>
       <button type="submit">Register</button>
     </form>
   );
